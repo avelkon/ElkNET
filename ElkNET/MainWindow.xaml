@@ -1,0 +1,113 @@
+﻿<Window x:Class="ElkNET.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ElkEGAIS.NET" Height="617.93" Width="867.225" WindowState="Maximized" Loaded="Window_Loaded" Closing="Window_Closing">
+    <Grid>
+        <TabControl x:Name="tcMain" Margin="0">
+            <TabItem Header="Данные с терминала">
+                <Grid Background="#FFE5E5E5" x:Name="tsdTabMainGrid">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="129*"/>
+                        <ColumnDefinition Width="40" MinWidth="40" MaxWidth="40"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="212*" />
+                        <RowDefinition Height="400*"/>
+                    </Grid.RowDefinitions>
+                    <DataGrid AutoGenerateColumns="False" x:Name="dg_tsd_tc" Margin="2,28,1,5" RowDetailsVisibilityMode="Collapsed" Grid.ColumnSpan="1" SelectionMode="Single" Loaded="dg_tsd_tc_Loaded" CanUserResizeRows="False" SelectionChanged="dg_tsd_tc_SelectionChanged" CanUserAddRows="False" CanUserDeleteRows="False" IsReadOnly="True" IsSynchronizedWithCurrentItem="False">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn Binding="{Binding Path=FILE_NAME}" ClipboardContentBinding="{x:Null}" Header="Имя файла"/>
+                            <DataGridTextColumn Binding="{Binding Path=SDOC}" ClipboardContentBinding="{x:Null}" Header="Имя документа"/>
+                            <DataGridTemplateColumn Header="Дата">
+                                <DataGridTemplateColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <DatePicker SelectedDate="{Binding Path=DOCDATE}" ScrollViewer.VerticalScrollBarVisibility="Disabled" SelectedDateFormat="Long" IsHitTestVisible="False" />
+                                    </DataTemplate>
+                                </DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn Binding="{Binding Path=SAGENT}" ClipboardContentBinding="{x:Null}" Header="Контрагент"/>
+                            <DataGridTextColumn Binding="{Binding Path=SFIFO}" ClipboardContentBinding="{x:Null}" Header="Грузополучатель"/>
+                            <DataGridTextColumn Binding="{Binding Path=SMANAGER}" ClipboardContentBinding="{x:Null}" Header="Ответственный"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <GridSplitter x:Name="TsdColumnsGridSplitter" Grid.Column="1" HorizontalAlignment="Left" Margin="0" Grid.Row="0" Width="5" Background="#FFFDF9F9" ResizeDirection="Columns" ShowsPreview="True" MinWidth="5" MaxWidth="5" BorderBrush="{x:Null}"/>
+                    <GridSplitter HorizontalAlignment="Stretch" Height="5" Margin="0" VerticalAlignment="Bottom" ResizeDirection="Rows" Grid.ColumnSpan="2" MinHeight="5" MaxHeight="5" Background="#FFFBF7F7" ShowsPreview="True"/>
+                    <Expander x:Name="exDg_From_tsd" Header="База" Grid.Row="0" Grid.Column="1" ExpandDirection="Left" Margin="5,28,1,5" Collapsed="exDg_From_tsd_Collapsed" Expanded="exDg_From_tsd_Expanded">
+                        <DataGrid x:Name="dg_from_tsd" Margin="0,0,2,0" RowDetailsVisibilityMode="Collapsed" SelectionMode="Single" CanUserAddRows="False" IsReadOnly="True" CanUserDeleteRows="False" AutoGenerateColumns="False" CellEditEnding="datagrid_CellEditEnding">
+                            <DataGrid.Columns>
+                                <DataGridTemplateColumn Header="Дата сканирования" IsReadOnly="True">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <DatePicker SelectedDate="{Binding Path=DATE_SCAN}" ScrollViewer.VerticalScrollBarVisibility="Disabled" SelectedDateFormat="Long" IsHitTestVisible="False" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTemplateColumn Header="Дата загрузки" IsReadOnly="True">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <DatePicker SelectedDate="{Binding Path=DATE_UPLOAD}" ScrollViewer.VerticalScrollBarVisibility="Disabled" SelectedDateFormat="Long" IsHitTestVisible="False" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Binding="{Binding Path=BARCODE}" Header="Barcode" Visibility="Visible" />
+                                <DataGridTextColumn Binding="{Binding Path=QUANTITY}" Header="Кол-во" Visibility="Visible" />
+                                <DataGridTextColumn Binding="{Binding Path=FILE_NAME}" Header="FILE_NAME" Visibility="Hidden" />
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Expander>
+                    <Grid Grid.Column="0" Margin="0" Grid.Row="1" Grid.RowSpan="1" Grid.ColumnSpan="2">
+                        <Grid.RowDefinitions>
+                            <RowDefinition/>
+                            <RowDefinition/>
+                        </Grid.RowDefinitions>
+                        <DataGrid x:Name="dg_boxes_tsd" Margin="2,1,1,5" Grid.Row="0" RowDetailsVisibilityMode="Collapsed" SelectionChanged="dg_boxes_tsd_SelectionChanged" CanUserAddRows="False" AutoGenerateColumns="False" CellEditEnding="datagrid_CellEditEnding" PreviewKeyDown="datagrid_PreviewKeyDown">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding Path=RN}" Header="РН" IsReadOnly="True" Visibility="Visible" />
+                                <DataGridTextColumn Binding="{Binding Path=BARCODE}" Header="Barcode" IsReadOnly="False"/>
+                                <DataGridTextColumn Binding="{Binding Path=QUANTITY}" Header="Кол-во" IsReadOnly="False"/>
+                                <DataGridTemplateColumn Header="Дата розлива" IsReadOnly="True">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <DatePicker SelectedDate="{Binding Path=DATE_BOTTLING}" ScrollViewer.VerticalScrollBarVisibility="Disabled" SelectedDateFormat="Long" IsHitTestVisible="False" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Binding="{Binding Path=BOX_NO}" Header="Номер коробки" IsReadOnly="True"/>
+                                <DataGridTextColumn Binding="{Binding Path=SERROR}" Header="Ошибка" IsReadOnly="True"/>
+                                <DataGridTextColumn Binding="{Binding Path=FILE_NAME}" Header="Имя файла" IsReadOnly="True" Visibility="Hidden"/>
+                                <DataGridTextColumn Binding="{Binding Path=STATE}" Header="Статус" IsReadOnly="True"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                        <GridSplitter HorizontalAlignment="Stretch" Margin="0" Grid.Row="0" Height="5" VerticalAlignment="Bottom" MinHeight="5" MaxHeight="5" Background="#FFFDF9F9" ShowsPreview="True" ResizeDirection="Rows"/>
+                        <DataGrid x:Name="dg_marks_tsd" Margin="2,0,1,0" Grid.Row="1" RowDetailsVisibilityMode="Collapsed" CanUserAddRows="False" CanUserDeleteRows="True" AutoGenerateColumns="False" PreviewKeyDown="datagrid_PreviewKeyDown">
+                            <DataGrid.Columns>
+                                <DataGridTextColumn Binding="{Binding Path=RN}" Header="RN" Visibility="Hidden" />
+                                <DataGridTextColumn Binding="{Binding Path=PRN}" Header="Parent_RN" Visibility="Hidden" />
+                                <DataGridTextColumn Binding="{Binding Path=BARCODE}" Header="Barcode" IsReadOnly="True" Visibility="Visible"/>
+                                <DataGridTextColumn Binding="{Binding Path=PREF}" Header="Префикс марки" IsReadOnly="True" Visibility="Visible"/>
+                                <DataGridTextColumn Binding="{Binding Path=NUMB}" Header="Номер марки" IsReadOnly="True" Visibility="Visible" />
+                                <DataGridTextColumn Binding="{Binding Path=COUNTRY}" Header="Страна" IsReadOnly="True" Visibility="Visible"/>
+                                <DataGridTextColumn Binding="{Binding Path=SERROR}" Header="Ошибка" IsReadOnly="True" Visibility="Visible"/>
+                                <DataGridTemplateColumn Header="Дата розлива" IsReadOnly="True">
+                                    <DataGridTemplateColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <DatePicker SelectedDate="{Binding Path=DATE_BOTTLING}" ScrollViewer.VerticalScrollBarVisibility="Disabled" SelectedDateFormat="Long" IsHitTestVisible="False" />
+                                        </DataTemplate>
+                                    </DataGridTemplateColumn.CellTemplate>
+                                </DataGridTemplateColumn>
+                                <DataGridTextColumn Binding="{Binding Path=RN_SOURCE}" Header="Barcode" IsReadOnly="True" Visibility="Hidden"/>
+                            </DataGrid.Columns>
+                        </DataGrid>
+                    </Grid>
+                    <Button x:Name="btShowFilter" Content="Фильтр" HorizontalAlignment="Left" Margin="2,2,0,0" VerticalAlignment="Top" Width="75" Height="21" Click="btShowFilter_Click"/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Номенклатура" IsEnabled="False">
+                <Grid Background="#FFE5E5E5"/>
+            </TabItem>
+            <TabItem Header="Контрагенты" IsEnabled="False">
+                <Grid Background="#FFE5E5E5" />
+            </TabItem>
+        </TabControl>
+    </Grid>
+</Window>

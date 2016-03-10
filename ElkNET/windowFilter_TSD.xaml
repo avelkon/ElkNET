@@ -1,0 +1,21 @@
+﻿<Window x:Class="ElkNET.windowFilter_TSD"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Фильтр" Height="195" Width="501" WindowStartupLocation="CenterOwner" ResizeMode="NoResize" ShowInTaskbar="False" WindowStyle="ToolWindow" Loaded="Window_Loaded">
+    <Grid>
+        <TextBox x:Name="tbFileName" Height="26" Margin="80,5,5,0" TextWrapping="Wrap" VerticalAlignment="Top" TabIndex="1" IsTabStop="False" ToolTip="Расширение &quot;.txt&quot; добавляется автоматически"/>
+        <Label Content="Имя файла" HorizontalAlignment="Left" Margin="5,5,0,0" VerticalAlignment="Top" ToolTip="Расширение &quot;.txt&quot; добавляется автоматически"/>
+        <Label x:Name="lbDocName" Content="Имя документа" HorizontalAlignment="Left" Margin="5,98,0,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="tbDocName" Height="23" Margin="105,101,5,0" TextWrapping="Wrap" VerticalAlignment="Top" TabIndex="4" IsTabStop="False"/>
+        <GroupBox Header="Дата" HorizontalAlignment="Left" Margin="5,33,0,0" VerticalAlignment="Top" Height="60" Width="485">
+            <Grid Margin="0">
+                <Label Content="От" HorizontalAlignment="Left" Margin="5,5,0,0" VerticalAlignment="Top" ToolTip="Нажмите Esc для очистки поля"/>
+                <DatePicker x:Name="dpStartDate" HorizontalAlignment="Left" Margin="34,7,0,0" VerticalAlignment="Top" TabIndex="2" Width="150" PreviewKeyDown="DatePicker_PreviewKeyDown" ToolTip="Нажмите Esc для очистки поля"/>
+                <Label Content="До" HorizontalAlignment="Left" Margin="283,5,0,0" VerticalAlignment="Top" ToolTip="Нажмите Esc для очистки поля"/>
+                <DatePicker x:Name="dpEndDate" HorizontalAlignment="Left" Margin="313,7,0,0" VerticalAlignment="Top" TabIndex="3" Width="150" PreviewKeyDown="DatePicker_PreviewKeyDown" ToolTip="Нажмите Esc для очистки поля"/>
+            </Grid>
+        </GroupBox>
+        <Button x:Name="btOk" Content="OK" HorizontalAlignment="Right" Margin="0,0,5,5" VerticalAlignment="Bottom" Width="75" IsTabStop="False" Click="Button_Click" IsDefault="True"/>
+        <CheckBox x:Name="cbHasDoc" Content="Документ" HorizontalAlignment="Left" Margin="10,138,0,0" VerticalAlignment="Top" Checked="cbHasDoc_Checked" Unchecked="cbHasDoc_Unchecked"/>
+    </Grid>
+</Window>
