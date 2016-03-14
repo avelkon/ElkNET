@@ -85,7 +85,7 @@ namespace ElkNET.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("parusina")]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string LastPassword {
             get {
                 return ((string)(this["LastPassword"]));

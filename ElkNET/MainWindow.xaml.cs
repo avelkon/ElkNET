@@ -17,17 +17,33 @@ namespace ElkNET
         public static string doc_name;
     }
 
-    public enum MSG_Code:int { MESSAGE, ERROR}
+    public static class ConnectionSettings
+    {
+        public static string login;
+        public static string password;
+        public static string protocol = "TCP";
+        public static string host = "10.1.1.6";
+        public static string port = "1520";
+        public static string service_name = "SBN";
+    }
+
+    /// <summary>
+    /// Типы сообщений в LOG
+    /// </summary>
+    public enum MSG_Code:int { MESSAGE, ERROR, WARRING}
+
     /// <summary>
     /// Логика взаимодействия для MainWindow.xaml
     /// </summary>
     public partial class MainWindow : Window
     {
-                
-        string currentLogin = Properties.Settings.Default.LastUser;
-        string currentPassword = Properties.Settings.Default.LastPassword;
         DBConnection dbConnection;
 
+        /// <summary>
+        /// Добавляет запись в LOG
+        /// </summary>
+        /// <param name="message">Текст сообщения</param>
+        /// <param name="type">Тип сообщения MSG_Code</param>
         public static void writeLog(string message, MSG_Code type = MSG_Code.MESSAGE)
         {
             string typeMsg = type.Equals(MSG_Code.MESSAGE) ? "[MESSAGE]" : "[ERROR]";
@@ -37,15 +53,20 @@ namespace ElkNET
         public MainWindow()
         {
             InitializeComponent();
+            //Load connection settings
+            ConnectionSettings.login = Properties.Settings.Default.LastUser;
+            ConnectionSettings.host = Properties.Settings.Default.Host;
+            ConnectionSettings.protocol = Properties.Settings.Default.Protocol;
+            ConnectionSettings.port = Properties.Settings.Default.Port;
+            ConnectionSettings.service_name = Properties.Settings.Default.ServiceName;
+            //Load last filter settings
             FilterResources.file_name = Properties.Settings.Default.filter_tsd_FileName;
             FilterResources.doc_name = Properties.Settings.Default.filter_tsd_DocName;
             if (Properties.Settings.Default.filter_tsd_StartDate.Equals(DateTime.MinValue)) FilterResources.start_date = null;
-                else FilterResources.start_date = Properties.Settings.Default.filter_tsd_StartDate;
-
+             else FilterResources.start_date = Properties.Settings.Default.filter_tsd_StartDate;
             if (Properties.Settings.Default.filter_tsd_EndDate.Year >= (DateTime.Now.Year+10) ||
                 Properties.Settings.Default.filter_tsd_EndDate.Year <= (DateTime.Now.Year - 500)) FilterResources.end_date = null;
-                else FilterResources.end_date = Properties.Settings.Default.filter_tsd_EndDate;
-
+             else FilterResources.end_date = Properties.Settings.Default.filter_tsd_EndDate;
             FilterResources.has_doc = Properties.Settings.Default.filter_tsd_hasDoc;
 
         }
@@ -91,12 +112,25 @@ namespace ElkNET
         {
             try
             {
-                dbConnection = new DBConnection(currentLogin, currentPassword);
+                //Show autentication form
+                LoginWindow loginWindow = new LoginWindow();
+                loginWindow.Owner = this;
+                if (!loginWindow.ShowDialog().Value) this.Close();
+                //Тут нужно проверять валидность логина и пароля
+                dbConnection = new DBConnection();
                 dbConnection.Open();
+            }
+            catch (InvalidOperationException)
+            {
+                MessageBox.Show("Ошибка подключения к базе", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
             catch (Exception ex)
             {
                 writeLog(ex.Message, MSG_Code.ERROR);
+            }
+            finally
+            {
+                this.Cursor = Cursors.Arrow;
             }
         }
 
@@ -105,6 +139,10 @@ namespace ElkNET
             try
             {
                 dbConnection.Close();
+                //Save connection values                
+                Properties.Settings.Default.LastUser = ConnectionSettings.login;
+                //Properties.Settings.Default.LastPassword = ConnectionSettings.password;
+                //Save filter values
                 Properties.Settings.Default.filter_tsd_DocName = FilterResources.doc_name;
                 Properties.Settings.Default.filter_tsd_FileName = FilterResources.file_name;
                 Properties.Settings.Default.filter_tsd_hasDoc = FilterResources.has_doc;

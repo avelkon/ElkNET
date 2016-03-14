@@ -18,7 +18,7 @@
       <Value Profile="(Default)">parus</Value>
     </Setting>
     <Setting Name="LastPassword" Type="System.String" Scope="User">
-      <Value Profile="(Default)">parusina</Value>
+      <Value Profile="(Default)" />
     </Setting>
     <Setting Name="filter_tsd_FileName" Type="System.String" Scope="User">
       <Value Profile="(Default)" />

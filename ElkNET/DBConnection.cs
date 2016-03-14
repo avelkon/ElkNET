@@ -21,16 +21,28 @@ namespace ElkNET
         public const string boxes_tsd_table = "aa_v_boxes_tsd_new";
         public const string marks_tsd_table = "aa_v_marks_tsd_new";
 
+        /// <summary>
+        /// Создает соединение с БД, используя последние имя пользователя и пароль.
+        /// Не устанавливает соединение.
+        /// </summary>
+        public DBConnection() : this(ConnectionSettings.login, ConnectionSettings.password) { }
+
+        /// <summary>
+        /// Создает соединение с БД
+        /// Не устанавливает соединение.
+        /// </summary>
+        /// <param name="login">имя пользователя</param>
+        /// <param name="password">пароль</param>
         public DBConnection(string login, string password)
         {
             try
             {
                 this.connection = new OracleConnection();
                 this.connection.ConnectionString = String.Format("Data Source=(DESCRIPTION=(ADDRESS_LIST=(ADDRESS=(PROTOCOL={0})(HOST={1})(PORT={2})))(CONNECT_DATA=(SERVICE_NAME={3})));User Id={4};Password={5};",
-                        Properties.Settings.Default.Protocol,
-                        Properties.Settings.Default.Host,
-                        Properties.Settings.Default.Port,
-                        Properties.Settings.Default.ServiceName,
+                        ConnectionSettings.protocol,
+                        ConnectionSettings.host,
+                        ConnectionSettings.port,
+                        ConnectionSettings.service_name,
                         login,
                         password);
                 this.mainDataSet.Tables.Add(tsd_tc_table);
@@ -43,7 +55,7 @@ namespace ElkNET
 
         ~DBConnection()
         {
-            this.Close();
+            connection.Close();
         }
 
         /// <summary>
