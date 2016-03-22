@@ -33,6 +33,7 @@ namespace ElkNET
                 FilterResources.end_date = dpEndDate.SelectedDate;
                 FilterResources.doc_name = tbDocName.Text;
                 FilterResources.has_doc = cbHasDoc.IsChecked.Value;
+                FilterResources.is_error = cbIsError.IsChecked.Value;
                 this.DialogResult = true;
                 this.Close();
             }
@@ -60,6 +61,7 @@ namespace ElkNET
             dpEndDate.DisplayDate = DateTime.Now;
             tbDocName.Text = FilterResources.doc_name;
             cbHasDoc.IsChecked = FilterResources.has_doc;
+            cbIsError.IsChecked = FilterResources.is_error;
             if (cbHasDoc.IsChecked.HasValue && !cbHasDoc.IsChecked.Value)
             {
                 tbDocName.IsEnabled = false;

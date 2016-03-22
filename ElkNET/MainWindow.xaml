@@ -60,7 +60,7 @@
                             <RowDefinition/>
                             <RowDefinition/>
                         </Grid.RowDefinitions>
-                        <DataGrid x:Name="dg_boxes_tsd" Margin="2,1,1,5" Grid.Row="0" RowDetailsVisibilityMode="Collapsed" SelectionChanged="dg_boxes_tsd_SelectionChanged" CanUserAddRows="False" AutoGenerateColumns="False" CellEditEnding="datagrid_CellEditEnding" PreviewKeyDown="datagrid_PreviewKeyDown" BeginningEdit="dg_boxes_tsd_BeginningEdit" RowEditEnding="dg_boxes_tsd_RowEditEnding">
+                        <DataGrid x:Name="dg_boxes_tsd" Margin="2,1,1,5" Grid.Row="0" CanUserDeleteRows="False" RowDetailsVisibilityMode="Collapsed" SelectionChanged="dg_boxes_tsd_SelectionChanged" CanUserAddRows="False" AutoGenerateColumns="False" CellEditEnding="datagrid_CellEditEnding" PreviewKeyDown="datagrid_PreviewKeyDown" BeginningEdit="dg_boxes_tsd_BeginningEdit" RowEditEnding="dg_boxes_tsd_RowEditEnding">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Binding="{Binding Path=RN}" Header="РН" IsReadOnly="True" Visibility="Visible" />
                                 <DataGridTextColumn Binding="{Binding Path=BARCODE}" Header="Barcode" IsReadOnly="False"/>

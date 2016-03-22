@@ -108,7 +108,7 @@ namespace ElkNET
         /// <param name="docName"></param>
         /// <param name="fileName"></param>
         /// <returns></returns>
-        public DataView getTable_tsd_tc(DateTime? startDate, DateTime? endDate, bool hasDocInfo, string docName = null, string fileName = null)
+        public DataView getTable_tsd_tc(DateTime? startDate, DateTime? endDate, bool hasDocInfo, string docName = null, string fileName = null, bool isError = false)
         {
             OracleCommand dbCommand = new OracleCommand()
             {
@@ -121,7 +121,8 @@ namespace ElkNET
             dbCommand.CommandText += (startDate.HasValue ? String.Format(" and tbl.DOCDATE >= '{0}'", startDate.Value.ToShortDateString()) : "")
                         + (endDate.HasValue ? String.Format(" and tbl.DOCDATE <= '{0}'", endDate.Value.ToShortDateString()) : "")
                         + (!string.IsNullOrWhiteSpace(docName) ? String.Format(" and tbl.SDOC = '{0}'", docName) : "")
-                        + (!string.IsNullOrWhiteSpace(fileName) ? String.Format(" and (tbl.FILE_NAME = '{0}' or tbl.FILE_NAME = '{0}.txt')", fileName) : "");
+                        + (!string.IsNullOrWhiteSpace(fileName) ? String.Format(" and (tbl.FILE_NAME = '{0}' or tbl.FILE_NAME = '{0}.txt')", fileName) : "")
+                        + (isError ? " and tbl.ISERROR = 1" : "");
             OracleDataAdapter oda = new OracleDataAdapter() { SelectCommand = dbCommand };
             this.mainDataSet.Tables[tsd_tc_table].Clear();
             oda.Fill(this.mainDataSet, tsd_tc_table);

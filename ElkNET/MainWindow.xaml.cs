@@ -16,6 +16,7 @@ namespace ElkNET
         public static DateTime? end_date;
         public static bool has_doc;
         public static string doc_name;
+        public static bool is_error;
     }
 
     public static class ConnectionSettings
@@ -69,6 +70,7 @@ namespace ElkNET
                 Properties.Settings.Default.filter_tsd_EndDate.Year <= (DateTime.Now.Year - 500)) FilterResources.end_date = null;
              else FilterResources.end_date = Properties.Settings.Default.filter_tsd_EndDate;
             FilterResources.has_doc = Properties.Settings.Default.filter_tsd_hasDoc;
+            FilterResources.is_error = Properties.Settings.Default.filter_tsd_isError;
 
         }
 
@@ -85,11 +87,13 @@ namespace ElkNET
                 clearDataGrid(dg_from_tsd);
                 clearDataGrid(dg_boxes_tsd);
                 clearDataGrid(dg_marks_tsd);
-                dg_tsd_tc.ItemsSource = dbConnection.getTable_tsd_tc(FilterResources.start_date,
+                dg_tsd_tc.ItemsSource = dbConnection.getTable_tsd_tc(
+                        FilterResources.start_date,
                         FilterResources.end_date,
                         FilterResources.has_doc,
                         FilterResources.doc_name,
-                        FilterResources.file_name);
+                        FilterResources.file_name,
+                        FilterResources.is_error);
                 dg_tsd_tc.Items.Refresh();
                 return true;
             }
@@ -124,6 +128,8 @@ namespace ElkNET
                     loginWindow.Owner = this;
                     if (!loginWindow.ShowDialog().Value) { this.Close(); return; }
                     //Тут нужно проверять валидность логина и пароля
+                    //ConnectionSettings.login = "parus";
+                    //ConnectionSettings.password = "sd-pofr-bv";
                     this.Cursor = Cursors.Wait;
                     dbConnection = new DBConnection();
                     dbConnection.Open();
@@ -131,7 +137,7 @@ namespace ElkNET
                 }
                 catch (Oracle.ManagedDataAccess.Client.OracleException ex)
                 {
-                    MessageBox.Show("Ошибка подключения к базе", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    MessageBox.Show("Ошибка подключения к базе.\n"+ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
                 catch (Exception ex)
                 {
@@ -158,6 +164,7 @@ namespace ElkNET
                 Properties.Settings.Default.filter_tsd_hasDoc = FilterResources.has_doc;
                 Properties.Settings.Default.filter_tsd_StartDate = FilterResources.start_date.HasValue ? FilterResources.start_date.Value : DateTime.MinValue;
                 Properties.Settings.Default.filter_tsd_EndDate = FilterResources.end_date.HasValue ? FilterResources.end_date.Value : DateTime.MaxValue;
+                Properties.Settings.Default.filter_tsd_isError = FilterResources.is_error;
                 Properties.Settings.Default.Save();
             }
             catch (Exception ex)
@@ -255,10 +262,16 @@ namespace ElkNET
             this.Cursor = Cursors.Arrow;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void datagrid_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             try
             {
+                (sender as DataGrid).CanUserDeleteRows = true;
                 if (e.Key.Equals(Key.Delete) && (sender as DataGrid).HasItems && MessageBox.Show("Подтвердить удаление?", "Удаление записей", MessageBoxButton.OKCancel, MessageBoxImage.Question).Equals(MessageBoxResult.OK))
                 {
                     this.Cursor = Cursors.Wait;
@@ -271,6 +284,10 @@ namespace ElkNET
                         dbConnection.deleteRowFromDB(current_dg, rn);
                     }
                 }
+                else
+                {
+                    
+                }
             }
             catch (Exception ex)
             {
@@ -279,6 +296,7 @@ namespace ElkNET
             finally
             {
                 this.Cursor = Cursors.Arrow;
+                (sender as DataGrid).CanUserDeleteRows = false;
             }
         }
 
@@ -316,8 +334,11 @@ namespace ElkNET
                         dbConnection.updateRowFromDB(DBConnection.from_tsd_table, drv["RN"].ToString(), t_barcode, t_quan);
                 }
                 else
-                {                    
-                    e.Cancel = true;                    
+                {
+                    (sender as DataGrid).CellEditEnding -= datagrid_CellEditEnding;
+                    e.Cancel = true;
+                    (sender as DataGrid).CancelEdit(DataGridEditingUnit.Row);
+                    (sender as DataGrid).CellEditEnding += datagrid_CellEditEnding;
                 }
             }
             catch (Exception ex)
@@ -341,7 +362,11 @@ namespace ElkNET
 
         private void dg_boxes_tsd_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
         {
-            (sender as DataGrid).PreviewKeyDown += datagrid_PreviewKeyDown;
+            try
+            {
+                (sender as DataGrid).PreviewKeyDown += datagrid_PreviewKeyDown;
+            }
+            catch { throw; }
         }
       
     }

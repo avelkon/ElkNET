@@ -161,5 +161,17 @@ namespace ElkNET.Properties {
                 return ((string)(this["log_filepath"]));
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool filter_tsd_isError {
+            get {
+                return ((bool)(this["filter_tsd_isError"]));
+            }
+            set {
+                this["filter_tsd_isError"] = value;
+            }
+        }
     }
 }

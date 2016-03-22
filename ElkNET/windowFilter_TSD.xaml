@@ -17,5 +17,6 @@
         </GroupBox>
         <Button x:Name="btOk" Content="OK" HorizontalAlignment="Right" Margin="0,0,5,5" VerticalAlignment="Bottom" Width="75" IsTabStop="False" Click="Button_Click" IsDefault="True"/>
         <CheckBox x:Name="cbHasDoc" Content="Документ" HorizontalAlignment="Left" Margin="10,138,0,0" VerticalAlignment="Top" Checked="cbHasDoc_Checked" Unchecked="cbHasDoc_Unchecked"/>
+        <CheckBox x:Name="cbIsError" Content="С ошибками" HorizontalAlignment="Left" Margin="116,0,0,18" VerticalAlignment="Bottom"/>
     </Grid>
 </Window>

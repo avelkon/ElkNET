@@ -47,6 +47,7 @@ namespace ElkNET
                 catch (Oracle.ManagedDataAccess.Client.OracleException ex)
                 {
                     if (ex.Number == 01017) { MessageBox.Show("Не верный логин/пароль", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                    else MessageBox.Show("Ошибка подключения к базе.\n" + ex.Message, "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     temp_con.Close();
                     return;
                 }
