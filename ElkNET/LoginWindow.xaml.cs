@@ -37,9 +37,19 @@ namespace ElkNET
         {
             try
             {
-                this.Cursor = Cursors.Wait;
                 ConnectionSettings.login = tbLogin.Text.Trim();
                 ConnectionSettings.password = tbPassword.Password;
+                DBConnection temp_con = new DBConnection(tbLogin.Text.Trim(), tbPassword.Password);
+                try
+                {
+                    temp_con.Open();
+                }
+                catch (Oracle.ManagedDataAccess.Client.OracleException ex)
+                {
+                    if (ex.Number == 01017) { MessageBox.Show("Не верный логин/пароль", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error); }
+                    temp_con.Close();
+                    return;
+                }
                 this.DialogResult = true;
                 this.Close();
             }

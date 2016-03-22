@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Oracle.ManagedDataAccess.Client;
 using System.Data;
+using System.Threading;
 
 namespace ElkNET
 {
@@ -55,7 +56,11 @@ namespace ElkNET
 
         ~DBConnection()
         {
-            connection.Close();
+            try
+            {
+                connection.Close();
+            }
+            catch { }
         }
 
         /// <summary>
@@ -79,7 +84,7 @@ namespace ElkNET
             {
                 this.connection.Close();
             }
-            catch { throw; }
+            catch { }
         }
 
         public void clearDataSet()
@@ -118,6 +123,7 @@ namespace ElkNET
                         + (!string.IsNullOrWhiteSpace(docName) ? String.Format(" and tbl.SDOC = '{0}'", docName) : "")
                         + (!string.IsNullOrWhiteSpace(fileName) ? String.Format(" and (tbl.FILE_NAME = '{0}' or tbl.FILE_NAME = '{0}.txt')", fileName) : "");
             OracleDataAdapter oda = new OracleDataAdapter() { SelectCommand = dbCommand };
+            this.mainDataSet.Tables[tsd_tc_table].Clear();
             oda.Fill(this.mainDataSet, tsd_tc_table);
             return this.mainDataSet.Tables[tsd_tc_table].AsDataView();
         }
@@ -136,6 +142,7 @@ namespace ElkNET
                 Transaction = null
             };
             OracleDataAdapter oda = new OracleDataAdapter() { SelectCommand = dbCommand };
+            this.mainDataSet.Tables[from_tsd_table].Clear();
             oda.Fill(this.mainDataSet, from_tsd_table);
             return this.mainDataSet.Tables[from_tsd_table].AsDataView();
         }
@@ -173,6 +180,7 @@ namespace ElkNET
                 Transaction = null
             };
             OracleDataAdapter oda = new OracleDataAdapter() { SelectCommand = dbCommand };
+            this.mainDataSet.Tables[marks_tsd_table].Clear();
             this.mainDataSet.Tables[marks_tsd_table].Clear();
             oda.Fill(this.mainDataSet, marks_tsd_table);
             return this.mainDataSet.Tables[marks_tsd_table].AsDataView();

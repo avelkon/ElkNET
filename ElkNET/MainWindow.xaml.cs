@@ -1,9 +1,10 @@
-﻿using System.Windows;
+﻿using System;
 using System.Data;
-using System.Windows.Input;
-using System.Windows.Controls;
-using System;
 using System.IO;
+using System.Threading;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace ElkNET
 {
@@ -47,7 +48,7 @@ namespace ElkNET
         public static void writeLog(string message, MSG_Code type = MSG_Code.MESSAGE)
         {
             string typeMsg = type.Equals(MSG_Code.MESSAGE) ? "[MESSAGE]" : "[ERROR]";
-            File.AppendAllText(Properties.Settings.Default.log_filepath, "[" + DateTime.Now.ToString("dd.MM.yyyy hh:mm:ss")+ "]" + typeMsg + "\n" + message);
+            File.AppendAllText(Properties.Settings.Default.log_filepath, "[" + DateTime.Now.ToString("dd.MM.yyyy hh:mm:ss")+ "]" + typeMsg + "\n" + message + "\n");
         }
 
         public MainWindow()
@@ -90,10 +91,13 @@ namespace ElkNET
                         FilterResources.doc_name,
                         FilterResources.file_name);
                 dg_tsd_tc.Items.Refresh();
-                this.Cursor = Cursors.Arrow;
                 return true;
             }
             catch { throw; }
+            finally
+            {
+                this.Cursor = Cursors.Arrow;
+            }
         }
 
         private void dg_tsd_tc_Loaded(object sender, RoutedEventArgs e)
@@ -110,28 +114,34 @@ namespace ElkNET
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            try
+            bool isAuthOk = false;
+            do
             {
-                //Show autentication form
-                LoginWindow loginWindow = new LoginWindow();
-                loginWindow.Owner = this;
-                if (!loginWindow.ShowDialog().Value) this.Close();
-                //Тут нужно проверять валидность логина и пароля
-                dbConnection = new DBConnection();
-                dbConnection.Open();
-            }
-            catch (InvalidOperationException)
-            {
-                MessageBox.Show("Ошибка подключения к базе", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            catch (Exception ex)
-            {
-                writeLog(ex.Message, MSG_Code.ERROR);
-            }
-            finally
-            {
-                this.Cursor = Cursors.Arrow;
-            }
+                try
+                {
+                    //Show autentication form
+                    LoginWindow loginWindow = new LoginWindow();
+                    loginWindow.Owner = this;
+                    if (!loginWindow.ShowDialog().Value) { this.Close(); return; }
+                    //Тут нужно проверять валидность логина и пароля
+                    this.Cursor = Cursors.Wait;
+                    dbConnection = new DBConnection();
+                    dbConnection.Open();
+                    isAuthOk = true;
+                }
+                catch (Oracle.ManagedDataAccess.Client.OracleException ex)
+                {
+                    MessageBox.Show("Ошибка подключения к базе", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                catch (Exception ex)
+                {
+                    writeLog(ex.Message, MSG_Code.ERROR);
+                }
+                finally
+                {
+                    this.Cursor = Cursors.Arrow;
+                }
+            } while (!isAuthOk);
         }
 
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
@@ -139,7 +149,7 @@ namespace ElkNET
             try
             {
                 dbConnection.Close();
-                //Save connection values                
+                //Save connection values
                 Properties.Settings.Default.LastUser = ConnectionSettings.login;
                 //Properties.Settings.Default.LastPassword = ConnectionSettings.password;
                 //Save filter values
@@ -153,6 +163,10 @@ namespace ElkNET
             catch (Exception ex)
             {
                 writeLog(ex.Message, MSG_Code.ERROR);
+            }
+            finally
+            {
+                Environment.Exit(0);
             }
         }
 
@@ -205,12 +219,34 @@ namespace ElkNET
         {
             tsdTabMainGrid.ColumnDefinitions[1].Width = new GridLength(tsdTabMainGrid.ColumnDefinitions[1].MinWidth);
             tsdTabMainGrid.ColumnDefinitions[1].MaxWidth = tsdTabMainGrid.ColumnDefinitions[1].MinWidth;
+            try
+            {
+                clearDataGrid(dg_from_tsd);
+            }
+            catch (Exception ex)
+            {
+                writeLog(ex.Message, MSG_Code.WARRING);
+            }
         }
 
         private void exDg_From_tsd_Expanded(object sender, RoutedEventArgs e)
         {
             tsdTabMainGrid.ColumnDefinitions[1].MaxWidth = int.MaxValue;
             tsdTabMainGrid.ColumnDefinitions[1].Width = new GridLength(150, GridUnitType.Star);
+            try
+            {
+                this.Cursor = Cursors.Wait;
+                string fileName = (dg_tsd_tc.SelectedItem as DataRowView)["FILE_NAME"].ToString();
+                dg_from_tsd.ItemsSource = dbConnection.getTable_from_tsd(fileName);
+            }
+            catch (Exception ex)
+            {
+                writeLog(ex.Message, MSG_Code.ERROR);
+            }
+            finally
+            {
+                this.Cursor = Cursors.Arrow;
+            }
         }
 
         private void btShowFilter_Click(object sender, RoutedEventArgs e)
@@ -246,6 +282,11 @@ namespace ElkNET
             }
         }
 
+        /// <summary>
+        /// Обработка нажатия на клавишу
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void datagrid_CellEditEnding(object sender, DataGridCellEditEndingEventArgs e)
         {
             try
@@ -275,8 +316,8 @@ namespace ElkNET
                         dbConnection.updateRowFromDB(DBConnection.from_tsd_table, drv["RN"].ToString(), t_barcode, t_quan);
                 }
                 else
-                {
-                    e.Cancel = true;
+                {                    
+                    e.Cancel = true;                    
                 }
             }
             catch (Exception ex)
@@ -287,6 +328,20 @@ namespace ElkNET
             {
                 this.Cursor = Cursors.Arrow;
             }
+        }
+
+        private void dg_boxes_tsd_BeginningEdit(object sender, DataGridBeginningEditEventArgs e)
+        {
+            try
+            {
+                (sender as DataGrid).PreviewKeyDown -= datagrid_PreviewKeyDown;
+            }
+            catch { throw; }
+        }
+
+        private void dg_boxes_tsd_RowEditEnding(object sender, DataGridRowEditEndingEventArgs e)
+        {
+            (sender as DataGrid).PreviewKeyDown += datagrid_PreviewKeyDown;
         }
       
     }

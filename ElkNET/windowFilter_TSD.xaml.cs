@@ -27,6 +27,7 @@ namespace ElkNET
         {
             try
             {
+                this.Cursor = Cursors.Wait;
                 FilterResources.file_name = tbFileName.Text;
                 FilterResources.start_date = dpStartDate.SelectedDate;
                 FilterResources.end_date = dpEndDate.SelectedDate;
