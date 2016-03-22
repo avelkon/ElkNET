@@ -79,7 +79,7 @@
                             </DataGrid.Columns>
                         </DataGrid>
                         <GridSplitter HorizontalAlignment="Stretch" Margin="0" Grid.Row="0" Height="5" VerticalAlignment="Bottom" MinHeight="5" MaxHeight="5" Background="#FFFDF9F9" ShowsPreview="True" ResizeDirection="Rows"/>
-                        <DataGrid x:Name="dg_marks_tsd" Margin="2,0,1,0" Grid.Row="1" RowDetailsVisibilityMode="Collapsed" CanUserAddRows="False" CanUserDeleteRows="True" AutoGenerateColumns="False" PreviewKeyDown="datagrid_PreviewKeyDown">
+                        <DataGrid x:Name="dg_marks_tsd" Margin="2,0,1,0" Grid.Row="1" RowDetailsVisibilityMode="Collapsed" CanUserAddRows="False" CanUserDeleteRows="False" AutoGenerateColumns="False" PreviewKeyDown="datagrid_PreviewKeyDown">
                             <DataGrid.Columns>
                                 <DataGridTextColumn Binding="{Binding Path=RN}" Header="RN" Visibility="Hidden" />
                                 <DataGridTextColumn Binding="{Binding Path=PRN}" Header="Parent_RN" Visibility="Hidden" />

@@ -40,6 +40,8 @@ namespace ElkNET
     public partial class MainWindow : Window
     {
         DBConnection dbConnection;
+        private string current_FileName = "";
+        private string current_boxRN;
 
         /// <summary>
         /// Добавляет запись в LOG
@@ -74,14 +76,17 @@ namespace ElkNET
 
         }
 
-        private bool showFilterWindow()
+        /// <summary>
+        /// Показывает окно фильтра данных с терминала
+        /// </summary>
+        private void showFilterWindow()
         {
             try
             {
                 windowFilter_TSD filterWindow = new windowFilter_TSD();
                 filterWindow.Owner = this;
                 bool? dialRes = filterWindow.ShowDialog();
-                if (!dialRes.HasValue || !dialRes.Value) return false;
+                if (!dialRes.HasValue || !dialRes.Value) return;
                 this.Cursor = Cursors.Wait;
                 dbConnection.clearDataSet();
                 clearDataGrid(dg_from_tsd);
@@ -95,7 +100,6 @@ namespace ElkNET
                         FilterResources.file_name,
                         FilterResources.is_error);
                 dg_tsd_tc.Items.Refresh();
-                return true;
             }
             catch { throw; }
             finally
@@ -157,7 +161,7 @@ namespace ElkNET
                 dbConnection.Close();
                 //Save connection values
                 Properties.Settings.Default.LastUser = ConnectionSettings.login;
-                //Properties.Settings.Default.LastPassword = ConnectionSettings.password;
+                //Properties.Settings.Default.LastPassword = ConnectionSettings.password; //Сохраняем пароль
                 //Save filter values
                 Properties.Settings.Default.filter_tsd_DocName = FilterResources.doc_name;
                 Properties.Settings.Default.filter_tsd_FileName = FilterResources.file_name;
@@ -189,9 +193,9 @@ namespace ElkNET
             {
                 this.Cursor = Cursors.Wait;
                 if ((sender as DataGrid).SelectedIndex == -1) return;
-                string fileName = ((sender as DataGrid).SelectedItem as DataRowView)["FILE_NAME"].ToString();
-                if (exDg_From_tsd.IsExpanded) dg_from_tsd.ItemsSource = dbConnection.getTable_from_tsd(fileName);
-                dg_boxes_tsd.ItemsSource = dbConnection.getTable_boxes_tsd(fileName);
+                this.current_FileName = ((sender as DataGrid).SelectedItem as DataRowView)["FILE_NAME"].ToString();
+                if (exDg_From_tsd.IsExpanded) dg_from_tsd.ItemsSource = dbConnection.getTable_from_tsd(this.current_FileName);
+                dg_boxes_tsd.ItemsSource = dbConnection.getTable_boxes_tsd(this.current_FileName);
                 clearDataGrid(dg_marks_tsd);
             }
             catch (Exception ex)
@@ -210,7 +214,8 @@ namespace ElkNET
             {
                 this.Cursor = Cursors.Wait;
                 if (((DataGrid)sender).SelectedIndex == -1) return;
-                dg_marks_tsd.ItemsSource = dbConnection.getTable_marks_tsd(((sender as DataGrid).SelectedItem as DataRowView)["RN"].ToString());
+                this.current_boxRN = ((sender as DataGrid).SelectedItem as DataRowView)["RN"].ToString();
+                dg_marks_tsd.ItemsSource = dbConnection.getTable_marks_tsd(this.current_boxRN);
             }
             catch (Exception ex)
             {
@@ -263,7 +268,7 @@ namespace ElkNET
         }
 
         /// <summary>
-        /// 
+        /// PreviewKeyDown
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -271,22 +276,19 @@ namespace ElkNET
         {
             try
             {
-                (sender as DataGrid).CanUserDeleteRows = true;
                 if (e.Key.Equals(Key.Delete) && (sender as DataGrid).HasItems && MessageBox.Show("Подтвердить удаление?", "Удаление записей", MessageBoxButton.OKCancel, MessageBoxImage.Question).Equals(MessageBoxResult.OK))
                 {
-                    this.Cursor = Cursors.Wait;
                     string current_dg = "";
                     if((sender as DataGrid).Equals(dg_boxes_tsd)) current_dg = DBConnection.boxes_tsd_table;
                         else if ((sender as DataGrid).Equals(dg_marks_tsd)) current_dg = DBConnection.marks_tsd_table;
+                    this.Cursor = Cursors.Wait;
+                    //Selection delete from DB
                     foreach (DataRowView selectedRow in (sender as DataGrid).SelectedItems)
                     {
                         string rn = selectedRow["RN"].ToString();
                         dbConnection.deleteRowFromDB(current_dg, rn);
+                        selectedRow.Row.Delete();
                     }
-                }
-                else
-                {
-                    
                 }
             }
             catch (Exception ex)
@@ -296,7 +298,6 @@ namespace ElkNET
             finally
             {
                 this.Cursor = Cursors.Arrow;
-                (sender as DataGrid).CanUserDeleteRows = false;
             }
         }
 
@@ -314,7 +315,7 @@ namespace ElkNET
                     this.Cursor = Cursors.Wait;
                     DataRowView drv = (DataRowView)e.Row.Item;
                     string t_quan = drv["QUANTITY"].ToString(), t_barcode = drv["BARCODE"].ToString();
-                    DateTime? t_daterazl = null;
+                    DateTime? t_daterazl = null;  //not supported in ACID's procedure yet
                     if(e.Column.Header.Equals("Кол-во")) {
                         t_quan = (e.EditingElement as TextBox).Text;
                     }
@@ -322,12 +323,12 @@ namespace ElkNET
                     {
                         t_barcode = (e.EditingElement as TextBox).Text;
                     }
-                    //not used
+                    //not supported in ACID's procedure yet
                     if (e.Column.Header.Equals("Дата розлива"))
                     {
                         t_daterazl = (e.EditingElement as DatePicker).SelectedDate;
                     }
-                    //-------
+                    //-------------------------------------
                     if((sender as DataGrid).Equals(dg_boxes_tsd))
                         dbConnection.updateRowFromDB(DBConnection.boxes_tsd_table, drv["RN"].ToString(), t_barcode, t_quan);
                     else if((sender as DataGrid).Equals(dg_from_tsd))
