@@ -4,7 +4,7 @@
         Title="ElkEGAIS.NET" Height="617.93" Width="867.225" WindowState="Maximized" Loaded="Window_Loaded" Closing="Window_Closing" Icon="los.ico">
     <Grid>
         <TabControl x:Name="tcMain" Margin="0">
-            <TabItem Header="Данные с терминала">
+            <TabItem Header="Данные с терминала"><!-- первая вкладка -->
                 <Grid Background="#FFE5E5E5" x:Name="tsdTabMainGrid">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="129*"/>
@@ -103,10 +103,12 @@
                 </Grid>
             </TabItem>
             <TabItem Header="Номенклатура" IsEnabled="False">
-                <Grid Background="#FFE5E5E5"/>
+                <Grid Background="#FFE5E5E5">
+                </Grid>
             </TabItem>
             <TabItem Header="Контрагенты" IsEnabled="False">
-                <Grid Background="#FFE5E5E5" />
+                <Grid Background="#FFE5E5E5">
+                </Grid>
             </TabItem>
         </TabControl>
     </Grid>

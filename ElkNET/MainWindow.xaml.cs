@@ -1,7 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.IO;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -248,8 +248,7 @@ namespace ElkNET
             try
             {
                 this.Cursor = Cursors.Wait;
-                string fileName = (dg_tsd_tc.SelectedItem as DataRowView)["FILE_NAME"].ToString();
-                dg_from_tsd.ItemsSource = dbConnection.getTable_from_tsd(fileName);
+                dg_from_tsd.ItemsSource = dbConnection.getTable_from_tsd(this.current_FileName);
             }
             catch (Exception ex)
             {
@@ -282,13 +281,16 @@ namespace ElkNET
                     if((sender as DataGrid).Equals(dg_boxes_tsd)) current_dg = DBConnection.boxes_tsd_table;
                         else if ((sender as DataGrid).Equals(dg_marks_tsd)) current_dg = DBConnection.marks_tsd_table;
                     this.Cursor = Cursors.Wait;
+                    //For fast delete from DataGrid
+                    List<DataRow> tmp_RowsToRemove = new List<DataRow>();
                     //Selection delete from DB
                     foreach (DataRowView selectedRow in (sender as DataGrid).SelectedItems)
                     {
                         string rn = selectedRow["RN"].ToString();
                         dbConnection.deleteRowFromDB(current_dg, rn);
-                        selectedRow.Row.Delete();
-                    }
+                        tmp_RowsToRemove.Add(selectedRow.Row);
+                    }                    
+                    foreach (DataRow row in tmp_RowsToRemove) row.Delete(); //Deleting from DataGrid
                 }
             }
             catch (Exception ex)
